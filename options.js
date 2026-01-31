@@ -29,7 +29,7 @@ function showNotification(message, duration = 2000, type = 'success', reload = f
     notification.classList.add(type);
     notification.classList.remove('hidden');
     notification.classList.add('show');
-    
+
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -43,9 +43,9 @@ function showNotification(message, duration = 2000, type = 'success', reload = f
 
 document.addEventListener('DOMContentLoaded', () => {
     const settings_keys = [
-        "clock", "weather", "useCustomCity", "customCity", "tempUnit", "bookmarks", "bookmarkFolder", "expandBookmarks", "topRight", "topRightOrder", "pixelArt", 
+        "clock", "weather", "useCustomCity", "customCity", "tempUnit", "bookmarks", "bookmarkFolder", "expandBookmarks", "topRight", "topRightOrder", "pixelArt",
         "selectedPixelArt", "customSVG", "pixelArtOpacity", "pixelArtDensity", "pixelArtColorDark", "pixelArtColorLight", "availableWidgets", "theme", "backgroundImage",
-        "sidebar", "sidebarPosition", "sidebarWidgets", "sidebarExpanded", "sidebarShowCustomize", "autoHide", "useUnsplash", "unsplashApiKey", "unsplashUpdateFrequency", 
+        "sidebar", "sidebarPosition", "sidebarWidgets", "sidebarExpanded", "sidebarShowCustomize", "autoHide", "useUnsplash", "unsplashApiKey", "unsplashUpdateFrequency",
         "showUnsplashRefresh", "customCSS"
     ];
 
@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (settings['autoHide']) {
         document.getElementById("show-autoHide").checked = true;
     }
-    // Initialize and enforce dependency for sidebar Customize button visibility
     if (settings['sidebarShowCustomize'] === undefined) settings['sidebarShowCustomize'] = true;
     const sidebarShowCustomizeCheckbox = document.getElementById('sidebar-show-customize');
     if (sidebarShowCustomizeCheckbox) {
@@ -163,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector(`input[name="theme"][value="${theme}"]`).checked = true;
     }
 
-    // Handle background image preview
     const bgPreview = document.getElementById('background-preview');
     const imagePresentContainer = document.getElementById('image-present-container');
     const bgAddLabel = document.getElementById('background-add-label');
@@ -197,9 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('unsplash-update-frequency').value = settings.unsplashUpdateFrequency || 'daily';
     showUnsplashRefreshCheckbox.checked = settings.showUnsplashRefresh || false;
 
-    // Populate About panel: logo and version + links
     try {
-        // Prefer chrome.runtime.getManifest() when available (extension context)
         let manifest = null;
         if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
             manifest = chrome.runtime.getManifest();
@@ -207,7 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (manifest && manifest.version) {
             document.getElementById('extension-version').textContent = manifest.version;
         } else {
-            // Fallback: fetch manifest.json relative to the page
             fetch('manifest.json').then(r => r.json()).then(m => {
                 if (m && m.version) document.getElementById('extension-version').textContent = m.version;
             }).catch(() => {
@@ -224,9 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // If the webstore badge image exists, keep it; otherwise the img onerror handler shows the fallback SVG.
-    // Add an accessible tooltip using data-tooltip wrappers for consistent styling if desired later.
-
     if (settings.backgroundImage) {
         bgPreview.src = settings.backgroundImage;
         bgPreview.classList.remove('hidden');
@@ -240,17 +232,14 @@ document.addEventListener('DOMContentLoaded', () => {
         clearBgButton.classList.add('hidden');
     }
 
-    // Populate widgets
     const sidebarWidgetsTbody = document.getElementById('sidebar-widgets');
     const enabledWidgets = settings.sidebarWidgets || [];
     let allWidgets = settings.availableWidgets || defaultSettings.availableWidgets;
 
-    // Ensure allWidgets is an array to prevent errors from old settings formats
     if (!Array.isArray(allWidgets)) {
         allWidgets = defaultSettings.availableWidgets;
     }
 
-    // Create a set of enabled widgets for quick lookup
     const enabledWidgetSet = new Set(enabledWidgets);
     const sortedWidgets = [
         ...enabledWidgets,
@@ -277,8 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tr.append(td1, td2, td3);
         sidebarWidgetsTbody.appendChild(tr);
     });
-
-
 
     if (settings.topRightOrder) {
         let tbody = document.querySelector("table#top-right-links tbody");
@@ -341,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
     });
 
-    // Make rows draggable
     shortcutsTableBody.querySelectorAll('tr').forEach(row => row.setAttribute('draggable', 'true'));
 
     const selectElem = document.querySelector("#bookmark-folder-selector-span select");
@@ -361,12 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Back link navigation
     document.getElementById("back-link").addEventListener("click", () => {
         chrome.tabs.update({ url: "chrome://newtab" });
     });
 
-    // Navigate back when pressing Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             e.preventDefault();
@@ -429,7 +413,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (key === 'sidebarExpanded') {
                 settings_obj[key] = document.getElementById("sidebar-expanded-check").checked;
             } else if (key === 'sidebarShowCustomize') {
-                // If sidebarExpanded is set, enforce true for the customize button
                 const expandedVal = document.getElementById("sidebar-expanded-check").checked;
                 settings_obj[key] = expandedVal ? true : document.getElementById('sidebar-show-customize').checked;
             } else if (key === 'sidebarWidgets') {
@@ -440,7 +423,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 settings_obj[key] = selectedWidgets;
             } else if (key === 'availableWidgets') {
-                // This is a static list for now, just carry it over.
                 settings_obj[key] = settings.availableWidgets || defaultSettings.availableWidgets;
             }
             else if (key === 'backgroundImage') {
@@ -460,14 +442,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 settings_obj[key] = document.getElementById('show-unsplash-refresh').checked;
             }
             else if (key === 'customCSS') {
-                // Sanitize: remove </style> tags to prevent breaking out of style block
                 const rawCSS = document.getElementById('custom-css').value;
                 settings_obj[key] = rawCSS.replace(/<\/style>/gi, '');
             }
             else {
                 settings_obj[key] = document.getElementById("show-" + key).checked;
             }
-
 
         });
         localStorage.setItem("settings", JSON.stringify(settings_obj));
@@ -481,12 +461,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const suggestionsContainer = document.getElementById('city-suggestions');
 
     unsplashApiKeyInput.addEventListener('input', toggleUnsplashAdvancedOptions);
-    // When the 'keep sidebar expanded' option changes, enforce customize-button dependency
     const sidebarExpandedCheck = document.getElementById('sidebar-expanded-check');
     if (sidebarExpandedCheck) {
         sidebarExpandedCheck.addEventListener('change', () => {
-            // updateCustomizeDependency is defined above during initialization
-            try { updateCustomizeDependency(); } catch (e) { /* noop if not available */ }
+            try { updateCustomizeDependency(); } catch (e) {  }
         });
     }
 
@@ -518,7 +496,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cityInput.addEventListener('input', onCityInput);
 
-    // Hide suggestions when clicking outside
     document.addEventListener('click', (e) => {
         if (!document.getElementById('city-search-container').contains(e.target)) {
             suggestionsContainer.style.display = 'none';
@@ -574,10 +551,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
     });
 
-
-
-
-
     document.querySelectorAll('input[name="theme"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             applyTheme(e.target.value);
@@ -622,16 +595,13 @@ document.getElementById("show-weather").addEventListener('change', (e) => {
 document.getElementById("use-custom-city").addEventListener('change', (e) => {
     document.getElementById('custom-city-container').style.display = e.target.checked ? 'block' : 'none';
     if (!e.target.checked) {
-        // Clear custom city value when unchecked to revert to geolocation
         document.getElementById('custom-city').value = '';
     }
 });
 
 document.getElementById("custom-city").addEventListener('input', () => {
-    // When user types, invalidate weather cache
     localStorage.removeItem('weatherData');
 });
-
 
 document.getElementById("restore-defaults").addEventListener("click", () => {
     localStorage.removeItem("settings");
@@ -665,7 +635,6 @@ document.getElementById("show-sidebar").onchange = (e) => {
     document.querySelector("#sidebar-options").classList.toggle('disabled', !e.target.checked);
 }
 
-
 let theme = localStorage.getItem('theme') || 'system';
 
 function applyTheme(theme) {
@@ -685,7 +654,6 @@ function applyTheme(theme) {
 
 applyTheme(theme);
 
-    // Update About icons based on theme (light/dark/system)
     function updateAboutIcons() {
         const webstoreImg = document.getElementById('webstore-img');
         const githubImg = document.getElementById('github-img');
@@ -707,14 +675,12 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
     }
 });
 
-// Keep About icons in sync when system theme changes while in 'system' mode
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     if (theme === 'system') {
-        try { updateAboutIcons(); } catch (err) { /* ignore */ }
+        try { updateAboutIcons(); } catch (err) {  }
     }
 });
 
-// Easter egg: clicking on the app icon or title 10 times redirects to YouTube
 (function() {
     const CLICK_TARGET = 10;
     let clickCount = 0;
@@ -724,14 +690,8 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
     function incrementAndMaybeRedirect() {
         clickCount++;
         if (clickCount >= CLICK_TARGET) {
-            // Open YouTube (navigate current tab) as the easter egg destination
             chrome.tabs.create({ url: 'https://music.youtube.com/playlist?list=PLK_7F5FZ-_UQvmcztt2X7qMYOSGIH31Hc&si=BwTs_LOMzIQskPP7' });
-            // try {
-            //     window.location.href = 'https://www.youtube.com/';
-            // } catch (e) {
-            //     window.open('https://www.youtube.com/', '_blank');
-                
-            // }
+
         }
     }
 
@@ -747,10 +707,8 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
     });
 })();
 
-// Export settings to JSON file
 document.getElementById('export-settings').addEventListener('click', () => {
     const storedSettings = JSON.parse(localStorage.getItem('settings') || '{}');
-    // Merge with defaults to ensure all keys are included in export
     const settings = { ...defaultSettings, ...storedSettings };
     const dataStr = JSON.stringify(settings, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -765,21 +723,18 @@ document.getElementById('export-settings').addEventListener('click', () => {
     showNotification('Settings exported successfully!', 2000, 'success');
 });
 
-// Import settings from JSON file
 document.getElementById('import-settings').addEventListener('click', () => {
     document.getElementById('import-file').click();
 });
 
 function handleImportFile(file) {
     if (!file) return;
-    
-    // Check file type
+
     if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
         showNotification('Invalid file type. Please use a .json file.', 3000, 'error');
         return;
     }
-    
-    // Check file size (max 1MB)
+
     if (file.size > 1024 * 1024) {
         showNotification('File too large. Maximum size is 1MB.', 3000, 'error');
         return;
@@ -795,14 +750,12 @@ function handleImportFile(file) {
                 showNotification('Invalid JSON format. File may be corrupted.', 3000, 'error');
                 return;
             }
-            
-            // Validate that it's an object
+
             if (typeof importedSettings !== 'object' || importedSettings === null || Array.isArray(importedSettings)) {
                 showNotification('Invalid settings format. Expected a settings object.', 3000, 'error');
                 return;
             }
-            
-            // Check if it looks like a settings file (has at least one known key)
+
             const knownKeys = ['clock', 'weather', 'bookmarks', 'theme', 'topRight', 'pixelArt', 'sidebar'];
             const hasKnownKey = knownKeys.some(key => importedSettings.hasOwnProperty(key));
             if (!hasKnownKey) {
@@ -810,9 +763,8 @@ function handleImportFile(file) {
                 return;
             }
 
-            // Merge with default settings to ensure all keys exist
             const mergedSettings = { ...defaultSettings, ...importedSettings };
-            
+
             localStorage.setItem('settings', JSON.stringify(mergedSettings));
             showNotification('Settings imported successfully! Reloading...', 2000, 'success', true);
         } catch (error) {
@@ -828,11 +780,9 @@ function handleImportFile(file) {
 
 document.getElementById('import-file').addEventListener('change', (e) => {
     handleImportFile(e.target.files[0]);
-    // Reset the input so the same file can be selected again
     e.target.value = '';
 });
 
-// Drag and drop support for import button and drop zone
 const importButton = document.getElementById('import-settings');
 const dropZone = document.getElementById('import-drop-zone');
 const dropTargets = [importButton, dropZone];
@@ -857,7 +807,7 @@ dropTargets.forEach(target => {
         e.stopPropagation();
         dropZone.classList.remove('drag-over');
         importButton.classList.remove('drag-over');
-        
+
         const file = e.dataTransfer.files[0];
         handleImportFile(file);
     });

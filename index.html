@@ -24,6 +24,17 @@
 
   <div class="clock" id="clock">--:--</div>
   <div class="weather" id="weather">Fetching weather...</div>
+  <div class="search-container" id="search-container" aria-label="Search">
+    <div class="engine-picker" id="engine-picker" tabindex="0" role="button" aria-haspopup="listbox" aria-expanded="false" title="Change search engine">
+      <span class="engine-icon" id="engine-icon" aria-hidden="true"></span>
+      <span class="engine-name" id="engine-name">Google</span>
+      <span class="engine-caret" aria-hidden="true"></span>
+    </div>
+    <div class="search-input-wrap">
+      <input id="search-input" type="text" placeholder="Search or type a URL" autocomplete="off" spellcheck="false" />
+      <div class="suggestions" id="suggestions" hidden></div>
+    </div>
+  </div>
   <div class="shortcuts" id="shortcuts"></div>
 
   <div class="customize" id="customize" title="customize">
@@ -42,7 +53,7 @@
   <script src="defaultSettings.js"></script>
   <script type="module" src="main.js"></script>
   <script type="module" src="art.js"></script>
-  <script type="module" src="widgets/calendar.js"></script> 
+  <script type="module" src="widgets/calendar.js"></script>
   <script type="module" src="widgets/todo.js"></script>
 </body>
 
